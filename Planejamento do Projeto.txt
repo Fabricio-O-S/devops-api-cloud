@@ -1,106 +1,63 @@
-API CLOUD COM CI/CD (DEVOPS BASE)
+# Planejamento do Projeto: API Cloud com CI/CD (DevOps Base)
 
-Criar um sistema completo com:
+Este projeto foi desenhado para ser uma vitrine técnica completa (portfólio DevOps/Backend), simulando um ambiente real de desenvolvimento ágil com conteinerização, banco de dados isolado, proxy reverso, esteira CI/CD e deploy automático na nuvem.
 
-API em Python (FastAPI)
-Banco de dados PostgreSQL
-Docker (ambiente padronizado)
-Cloud (Azure ou Oracle VM)
-CI/CD (GitHub Actions)
-Deploy automático
-Base para portfólio DevOps
+O tema do projeto será uma **API de Gerenciamento de Tarefas (Tasks)**.
 
----------------------------------------------------
-Pastas:
+---
 
-devops-api-cloud/
-│
-├── app/
-│   ├── main.py
-│   ├── routes/
-│   ├── models/
-│   ├── database/
-│
-├── infra/
-│   ├── nginx/
-│
-├── docker/
-│   ├── Dockerfile
-│
-├── docker-compose.yml
-├── requirements.txt
-├── .env
-└── README.md
+## 🛠️ Objetivos Principais
+1. **API Assíncrona:** Desenvolver uma API robusta usando **FastAPI**.
+2. **Banco de Dados Relacional:** Integração com **PostgreSQL** usando SQLAlchemy (ORM).
+3. **Ambiente Padronizado:** Uso de **Docker e Docker Compose** para isolamento e reprodutibilidade local.
+4. **Segurança:** Configuração via variáveis de ambiente (`.env`), sem expor credenciais no histórico do Git.
+5. **Proxy Reverso:** Configuração local com **Nginx** direcionando tráfego HTTP.
+6. **Deploy Cloud:** Deploy contínuo em nuvem pública (Azure ou Oracle Cloud VM).
+7. **CI/CD Automatizado:** Pipeline via **GitHub Actions** rodando testes, analisando código e fazendo o deploy automático.
 
---------------------------------------------------------------------
+---
 
-ETAPA 2 — CRIAR A API (FASTAPI)
+## 📂 Cronograma Técnico & Checklist de Execução
 
-📌 Instalar dependências
-pip install fastapi uvicorn sqlalchemy psycopg2
+### 📍 Fase 1: Desenvolvimento da API & Banco de Dados (PostgreSQL + SQLAlchemy)
+- [ ] Criar arquivo de conexão e sessão do banco de dados em `src/database/`.
+- [ ] Mapear a entidade `Task` em `src/models/` com os campos:
+  - `id` (UUID ou Integer autoincremento)
+  - `title` (String, obrigatório)
+  - `description` (String, opcional)
+  - `completed` (Boolean, default False)
+  - `created_at` (Datetime, timestamp de criação)
+- [ ] Implementar as rotas CRUD de tarefas em `src/routes/`:
+  - `POST /tasks` - Criar uma nova tarefa.
+  - `GET /tasks` - Listar todas as tarefas.
+  - `GET /tasks/{id}` - Obter detalhes de uma tarefa específica.
+  - `PUT /tasks/{id}` - Atualizar os dados de uma tarefa (ex: marcar como concluída).
+  - `DELETE /tasks/{id}` - Deletar uma tarefa.
+- [ ] Ajustar `src/main.py` para carregar as rotas e injetar as tabelas do banco no startup.
+- [ ] Escrever testes básicos em `tests/` para validar a lógica do CRUD.
 
-📌 Criar main.py
-from fastapi import FastAPI
+### 📍 Fase 2: Conteinerização Local & Proxy Reverso (Docker + Nginx)
+- [ ] Ajustar o `docker/Dockerfile` para garantir o build otimizado da imagem da API.
+- [ ] Subir e validar localmente a comunicação entre a API FastAPI e o container PostgreSQL via `docker-compose.yml`.
+- [ ] Configurar o arquivo `nginx.conf` em `infra/nginx/` para atuar como proxy reverso, redirecionando requisições da porta externa `80` para a porta interna `8000` da API.
+- [ ] Integrar o serviço Nginx ao `docker-compose.yml`.
 
-app = FastAPI()
+### 📍 Fase 3: Preparação da Infraestrutura Cloud
+- [ ] Decidir a nuvem provedora (Azure Web Apps vs Oracle VM Ubuntu).
+- [ ] Provisionar a instância da máquina virtual ou serviço de App no provedor.
+- [ ] Provisionar ou configurar o banco de dados PostgreSQL na nuvem.
+- [ ] Configurar o grupo de segurança / portas de rede (exposição de portas 80/443 e isolamento da porta 5432).
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-	
-📌 Rodar local
-uvicorn app.main:app --reload
+### 📍 Fase 4: Automação CI/CD (GitHub Actions)
+- [ ] Criar o arquivo de workflow `.github/workflows/ci-cd.yml`.
+- [ ] Configurar a etapa de **Integração Contínua (CI)**:
+  - Rodar testes automáticos (`pytest`).
+  - Executar linter/formatter (`flake8` ou `black`) para garantir boas práticas.
+- [ ] Configurar a etapa de **Entrega Contínua (CD)**:
+  - Autenticar na nuvem de forma segura usando GitHub Secrets.
+  - Realizar o build da imagem Docker atualizada e fazer o deploy no ambiente de staging/produção.
 
-Teste:
-
-http://127.0.0.1:8000/health
-🗄️ ETAPA 3 — BANCO DE DADOS POSTGRES
-📌 Criar conexão básica
-
-database.py:
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-DATABASE_URL = "postgresql://user:password@db:5432/devops"
-
-engine = create_engine(DATABASE_URL)
-
-SessionLocal = sessionmaker(bind=engine)
-
---------------------------------------------------------------
-
-🐳 ETAPA 4 — DOCKER (OBRIGATÓRIO)
-
-📌 Dockerfile
-FROM python:3.11
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-📌 docker-compose.yml
-version: "3.9"
-
-services:
-  api:
-    build: .
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: devops
-    ports:
-      - "5432:5432"
-📌 Rodar tudo:
-docker-compose up --build
+### 📍 Fase 5: Documentação Final & Portfólio
+- [ ] Documentar o fluxo completo de deploy no README.md.
+- [ ] Adicionar imagens/diagramas de arquitetura (Mermaid) demonstrando a esteira CI/CD.
+- [ ] Escrever os principais aprendizados técnicos e comandos úteis.
