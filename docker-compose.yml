@@ -1,41 +1,35 @@
 version: '3.8'
 
 services:
-  # Serviço da API Python
+  # Serviço da API Python (FastAPI)
   web:
     build:
       context: .
       dockerfile: docker/Dockerfile
     container_name: devops_api_app
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"  # Expõe internamente para a rede do Docker, sem abrir porta pública direta
     volumes:
       - ./src:/app/src
       - ./logs:/app/logs
     environment:
       - PORT=8000
       - DEBUG=True
-      - DB_HOST=db
+      - DB_HOST=db  # Será sobrescrito pelas variáveis de ambiente da nuvem no deploy
       - DB_PORT=5432
       - DB_NAME=devops_db
-      - DB_USER=postgres
-      - DB_PASSWORD=sua_senha_segura
-    depends_on:
-      - db
-
-  # Serviço do Banco de Dados PostgreSQL
-  db:
-    image: postgres:15-alpine
-    container_name: devops_api_db
+      - DB_USER=fabricio_db
+      - DB_PASSWORD=0476
     restart: always
-    environment:
-      POSTGRES_DB: devops_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: sua_senha_segura
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
-volumes:
-  postgres_data:
+  # Serviço do Proxy Reverso Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: devops_api_nginx
+    ports:
+      - "80:80"  # Abre a porta HTTP padrão para a internet
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - web
+    restart: always
