@@ -1,0 +1,28 @@
+# Bytecode e caches do Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Ambientes virtuais
+.venv/
+venv/
+ENV/
+env/
+
+# Configurações e segredos locais
+.env
+.idea/
+.vscode/
+
+# Logs da aplicação
+logs/*.log
+!logs/.gitkeep
+
+# Arquivos do banco de dados local (se aplicável)
+*.db
+*.sqlite3
+
+# Arquivos do sistema operacional
+Thumbs.db
+.DS_Store

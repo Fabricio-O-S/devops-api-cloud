@@ -1,0 +1,106 @@
+API CLOUD COM CI/CD (DEVOPS BASE)
+
+Criar um sistema completo com:
+
+API em Python (FastAPI)
+Banco de dados PostgreSQL
+Docker (ambiente padronizado)
+Cloud (Azure ou Oracle VM)
+CI/CD (GitHub Actions)
+Deploy automático
+Base para portfólio DevOps
+
+---------------------------------------------------
+Pastas:
+
+devops-api-cloud/
+│
+├── app/
+│   ├── main.py
+│   ├── routes/
+│   ├── models/
+│   ├── database/
+│
+├── infra/
+│   ├── nginx/
+│
+├── docker/
+│   ├── Dockerfile
+│
+├── docker-compose.yml
+├── requirements.txt
+├── .env
+└── README.md
+
+--------------------------------------------------------------------
+
+ETAPA 2 — CRIAR A API (FASTAPI)
+
+📌 Instalar dependências
+pip install fastapi uvicorn sqlalchemy psycopg2
+
+📌 Criar main.py
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+	
+📌 Rodar local
+uvicorn app.main:app --reload
+
+Teste:
+
+http://127.0.0.1:8000/health
+🗄️ ETAPA 3 — BANCO DE DADOS POSTGRES
+📌 Criar conexão básica
+
+database.py:
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+DATABASE_URL = "postgresql://user:password@db:5432/devops"
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(bind=engine)
+
+--------------------------------------------------------------
+
+🐳 ETAPA 4 — DOCKER (OBRIGATÓRIO)
+
+📌 Dockerfile
+FROM python:3.11
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+📌 docker-compose.yml
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: devops
+    ports:
+      - "5432:5432"
+📌 Rodar tudo:
+docker-compose up --build

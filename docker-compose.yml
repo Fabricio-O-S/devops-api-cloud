@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Serviço da API Python
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: devops_api_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+    environment:
+      - PORT=8000
+      - DEBUG=True
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=devops_db
+      - DB_USER=postgres
+      - DB_PASSWORD=sua_senha_segura
+    depends_on:
+      - db
+
+  # Serviço do Banco de Dados PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: devops_api_db
+    restart: always
+    environment:
+      POSTGRES_DB: devops_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sua_senha_segura
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
