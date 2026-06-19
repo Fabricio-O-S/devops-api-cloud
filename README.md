@@ -17,7 +17,7 @@ graph TD
     Nginx -->|Porta 8000| API[FastAPI Container - Docker]
     API -->|Porta 5432| Postgres[(PostgreSQL Database - Host VM)]
     
-    subgraph VM Oracle Cloud (Ubuntu 22.04 LTS)
+    subgraph VM ["VM Oracle Cloud (Ubuntu 22.04 LTS)"]
         Nginx
         API
         Postgres
