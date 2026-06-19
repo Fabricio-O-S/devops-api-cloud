@@ -8,16 +8,16 @@ services:
       dockerfile: docker/Dockerfile
     container_name: devops_api_app
     ports:
-      - "8000:8000"  # Expondo a porta 8000 diretamente para o host da VM
+      - "8000:8000"  # Expondo a porta 8000 da API para o host da VM
     volumes:
       - ./src:/app/src
       - ./logs:/app/logs
     environment:
       - PORT=8000
-      - DEBUG=True
-      - DB_HOST=147.15.122.49
-      - DB_PORT=5432
-      - DB_NAME=devops_db
-      - DB_USER=fabricio_db
-      - DB_PASSWORD=0476
+      - DEBUG=${DEBUG:-True}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
     restart: always
